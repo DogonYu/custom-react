@@ -5,16 +5,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const mode = process.env.NODE_ENV || 'development';
-
-module.exports = {
+module.exports = (env, argv) => ({
   entry: './src/index.jsx',
   output: {
-    path: path.resolve(`${__dirname}/build`),
+    path: path.resolve(__dirname, '/build'),
     filename: 'bundle.[fullhash].js',
   },
-  mode,
-  devtool: mode === 'production' ? 'eval' : 'inline-source-map',
+  mode: argv.mode,
+  devtool: argv.mode === 'production' ? 'cheap-module-source-map' : 'inline-source-map',
   devServer: {
     contentBase: path.resolve(__dirname, '/build'),
     historyApiFallback: true,
@@ -36,7 +34,7 @@ module.exports = {
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
       },
       {
-        test: /\.(png|jpg)$/,
+        test: /\.(svg|png|jpg|jpeg|gif)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]',
@@ -48,12 +46,17 @@ module.exports = {
     modules: ['node_modules'],
     extensions: ['.js', '.json', '.jsx', '.css'],
     alias: {
-      Src: path.resolve(__dirname, 'src'),
-      Static: path.resolve(__dirname, 'static'),
+      '@src': path.resolve(__dirname, 'src'),
+      '@assets': path.resolve(__dirname, 'src/assets'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@hooks': path.resolve(__dirname, 'src/hooks'),
+      '@modules': path.resolve(__dirname, 'src/modules'),
+      '@pages': path.resolve(__dirname, 'src/pages'),
+      '@api': path.resolve(__dirname, 'src/api'),
     },
   },
   plugins: [
-    mode === 'production'
+    argv.mode === 'production'
       ? new webpack.optimize.OccurrenceOrderPlugin()
       : new webpack.HotModuleReplacementPlugin(),
     new TerserPlugin({
@@ -71,4 +74,4 @@ module.exports = {
     }),
     new CleanWebpackPlugin(),
   ],
-};
+});
