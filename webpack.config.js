@@ -14,7 +14,7 @@ module.exports = {
     filename: 'bundle.[fullhash].js',
   },
   mode,
-  devtool: 'eval',
+  devtool: mode === 'production' ? 'eval' : 'inline-source-map',
   devServer: {
     contentBase: path.resolve(__dirname, '/build'),
     historyApiFallback: true,
