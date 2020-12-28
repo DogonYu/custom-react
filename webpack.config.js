@@ -12,15 +12,19 @@ module.exports = (env, argv) => ({
     filename: 'bundle.[fullhash].js',
   },
   mode: argv.mode,
-  devtool: argv.mode === 'production' ? 'cheap-module-source-map' : 'inline-source-map',
+  devtool: argv.mode === 'production' ? 'cheap-module-source-map' : 'eval-cheap-module-source-map',
   devServer: {
     contentBase: path.resolve(__dirname, '/build'),
     historyApiFallback: true,
     index: 'index.html',
     port: 3000,
     hot: true,
-    overlay: true,
+    overlay: {
+      warnings: true,
+      errors: true,
+    },
     stats: 'errors-only',
+    compress: true,
   },
   module: {
     rules: [
