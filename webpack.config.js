@@ -10,13 +10,14 @@ const mode = process.env.NODE_ENV || 'development';
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    path: path.resolve(__dirname + '/build'),
+    path: path.resolve(`${__dirname}/build`),
     filename: 'bundle.[fullhash].js',
   },
   mode,
   devtool: 'eval',
   devServer: {
     contentBase: path.resolve(__dirname, '/build'),
+    historyApiFallback: true,
     index: 'index.html',
     port: 3000,
     hot: true,
