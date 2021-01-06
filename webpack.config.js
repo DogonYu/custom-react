@@ -2,19 +2,19 @@ const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => ({
   entry: './src/index.jsx',
   output: {
-    path: path.resolve(__dirname, '/build'),
-    filename: 'bundle.[fullhash].js',
+    path: path.resolve(__dirname, './dist'),
+    filename: argv.mode === 'production' ? 'bundle.[fullhash].js' : 'bundle.js',
+    publicPath: '/',
   },
   mode: argv.mode,
   devtool: argv.mode === 'production' ? 'cheap-module-source-map' : 'eval-cheap-module-source-map',
   devServer: {
-    contentBase: path.resolve(__dirname, '/build'),
+    contentBase: path.resolve(__dirname, './dist'),
     historyApiFallback: true,
     index: 'index.html',
     port: 3000,
@@ -41,7 +41,7 @@ module.exports = (env, argv) => ({
         test: /\.(svg|png|jpg|jpeg|gif)$/,
         loader: 'file-loader',
         options: {
-          name: '[name].[ext]',
+          name: 'assets/[name].[ext]',
         },
       },
     ],
@@ -59,22 +59,29 @@ module.exports = (env, argv) => ({
       '@api': path.resolve(__dirname, 'src/api'),
     },
   },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        terserOptions: {
+          ecma: 6,
+          compress: {
+            drop_console: true,
+          },
+        },
+      }),
+    ],
+    emitOnErrors: true,
+  },
   plugins: [
-    argv.mode === 'production'
-      ? new webpack.optimize.OccurrenceOrderPlugin()
-      : new webpack.HotModuleReplacementPlugin(),
-    new TerserPlugin({
-      parallel: true,
-      terserOptions: {
-        ecma: 6,
-      },
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.LoaderOptionsPlugin({
+      minimize: true,
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
       favicon: './public/favicon.ico',
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'style.css',
     }),
     new CleanWebpackPlugin(),
   ],
